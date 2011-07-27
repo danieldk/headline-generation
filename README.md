@@ -26,3 +26,5 @@ as a reference.
     You should have received a copy of the GNU Lesser General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+[1] Headline generation for Dutch newspaper articles through
+transformation-based learning, Daniël de Kok, Master's Thesis, 2008
