@@ -1,11 +1,16 @@
 package eu.danieldk.treetbl.dtree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Node {
+public class Node implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 35050854750163646L;
 	private Node d_parent;
 	private final int d_id;
 	private int d_begin;

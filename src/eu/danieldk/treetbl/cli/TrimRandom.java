@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import eu.danieldk.treetbl.cli.Learn.HeadlineFileFilter;
-import eu.danieldk.treetbl.cli.Learn.SentenceFileFilter;
+import eu.danieldk.treetbl.dtree.DataSet;
 import eu.danieldk.treetbl.dtree.DependencyTree;
-import eu.danieldk.treetbl.dtree.io.AlpinoDSReader;
 import eu.danieldk.treetbl.learn.Rule;
 import eu.danieldk.treetbl.trim.Trimmer;
 
@@ -65,45 +63,28 @@ public class TrimRandom {
 			System.exit(1);
 		}
 		
-		// Read training data.
-		File dir = new File(args[2]);
-		if (!dir.isDirectory()) {
-			System.out.println(args[2] + " is not a directory!");
+		
+		File data = new File(args[2]);
+		if (!data.isFile() || !data.canRead()) {
+			System.out.println(args[2] + " cannot be opened or read!");
+			System.exit(1);
+		}
+
+		System.out.print("Reading evaluation data... ");
+		
+		DataSet dataset = null;
+		try {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(args[0]));
+			dataset = (DataSet) in.readObject();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 		
-		System.out.print("Reading evaluation data... ");
-		
-//		List<DependencyTree> goldCorpus = new Vector<DependencyTree>();
-		List<DependencyTree> dummyCorpus = new Vector<DependencyTree>();
-		
-		String headlineFilenames[] = dir.list(new HeadlineFileFilter());
-		for (String headlineFilename: headlineFilenames) {
-			String basename = headlineFilename.replaceAll("h\\.xml$", "");
+		System.out.println("Done!");
 
-			// Not deterministic, there can be more than one sentence per headline.
-			String[] sentenceFilenames = dir.list(new SentenceFileFilter(basename));
-
-			headlineFilename = args[2] + "/" + headlineFilename;
-
-			for (String sentenceFilename: sentenceFilenames) {
-				sentenceFilename = args[2] + "/" + sentenceFilename;				
-
-				//			DependencyTree goldTree = null;
-				DependencyTree dummyTree = null;
-
-				try {
-					dummyTree = new AlpinoDSReader().readTree(
-							new FileInputStream(sentenceFilename));
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.exit(0);
-				}
-
-				//			goldCorpus.add(goldTree);
-				dummyCorpus.add(dummyTree);
-			}
-		}
+		List<DependencyTree> dummyCorpus = dataset.dummyCorpus();
 		
 		TreeSet<Integer> randomIndices = new TreeSet<Integer>();
 		while (randomIndices.size() != NSENTENCES) {
@@ -111,7 +92,6 @@ public class TrimRandom {
 			randomIndices.add(idx);
 		}
 		
-//		goldCorpus = extractIndices(goldCorpus, randomIndices);
 		dummyCorpus = extractIndices(dummyCorpus, randomIndices);
 		
 		Trimmer htTrimmer = new Trimmer(htRules);
@@ -121,18 +101,12 @@ public class TrimRandom {
 		List<DependencyTree> allTrimmedCorpus = allTrimmer.trim(dummyCorpus, 8);
 
 		double htComprSum = 0.0;
-		double allComprSum = 0.0;
 		
 		for (int i = 0; i < dummyCorpus.size(); ++i) {
 			System.out.println("S:" + detokenizeSentence(dummyCorpus.get(i).getSentence()));
-			
-			String htSentence = detokenizeSentence(htTrimmedCorpus.get(i).getSentence());
-			String allSentence = detokenizeSentence(allTrimmedCorpus.get(i).getSentence());
-			
+						
 			htComprSum += (double) htTrimmedCorpus.get(i).getSentence().length /
 				dummyCorpus.get(i).getSentence().length;
-			allComprSum += (double) allTrimmedCorpus.get(i).getSentence().length /
-			dummyCorpus.get(i).getSentence().length;
 			
 			System.out.println("H:" + detokenizeSentence(htTrimmedCorpus.get(i).getSentence()));
 			System.out.println("A:" + detokenizeSentence(allTrimmedCorpus.get(i).getSentence()));

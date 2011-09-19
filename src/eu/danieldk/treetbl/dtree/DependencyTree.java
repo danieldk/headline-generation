@@ -1,5 +1,6 @@
 package eu.danieldk.treetbl.dtree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,7 +8,11 @@ import java.util.List;
 
 import eu.danieldk.treetbl.dtree.util.DependencyTreeNodeIterator;
 
-public class DependencyTree {
+public class DependencyTree implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5384009195437094638L;
 	private Node d_rootNode;
 	
 	public DependencyTree(Node rootNode) {

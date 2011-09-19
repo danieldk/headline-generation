@@ -7,10 +7,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import eu.danieldk.treetbl.cli.Learn.HeadlineFileFilter;
-import eu.danieldk.treetbl.cli.Learn.SentenceFileFilter;
+import eu.danieldk.treetbl.dtree.DataSet;
 import eu.danieldk.treetbl.dtree.DependencyTree;
-import eu.danieldk.treetbl.dtree.io.AlpinoDSReader;
 import eu.danieldk.treetbl.eval.NgramEval;
 import eu.danieldk.treetbl.eval.Rouge;
 import eu.danieldk.treetbl.learn.Rule;
@@ -59,55 +57,29 @@ public class Evaluate {
 			System.exit(1);
 		}
 		
-		// Read training data.
-		File dir = new File(args[1]);
-		if (!dir.isDirectory()) {
-			System.out.println(args[1] + " is not a directory!");
+		File data = new File(args[1]);
+		if (!data.isFile() || !data.canRead()) {
+			System.out.println(args[1] + " cannot be opened or read!");
+			System.exit(1);
+		}
+
+		System.out.print("Reading evaluation data... ");
+		
+		DataSet dataset = null;
+		try {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(args[1]));
+			dataset = (DataSet) in.readObject();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 		
-		System.out.print("Reading evaluation data... ");
+		System.out.println("Done!");		
 		
-		Vector<DependencyTree> goldCorpus = new Vector<DependencyTree>();
-		Vector<DependencyTree> dummyCorpus = new Vector<DependencyTree>();
-		
-		String headlineFilenames[] = dir.list(new HeadlineFileFilter());
-		for (String headlineFilename: headlineFilenames) {
-			String basename = headlineFilename.replaceAll("h\\.xml$", "");
+		List<DependencyTree> goldCorpus = dataset.goldCorpus();
+		List<DependencyTree> dummyCorpus = dataset.dummyCorpus();
 
-			// Not deterministic, there can be more than one sentence per headline.
-			String[] sentenceFilenames = dir.list(new SentenceFileFilter(basename));
-
-			headlineFilename = args[1] + "/" + headlineFilename;
-
-			for (String sentenceFilename: sentenceFilenames) {
-				sentenceFilename = args[1] + "/" + sentenceFilename;				
-
-				DependencyTree goldTree = null;
-				DependencyTree dummyTree = null;
-
-				try {
-					goldTree = new AlpinoDSReader().readTree(
-							new FileInputStream(headlineFilename));
-					dummyTree = new AlpinoDSReader().readTree(
-							new FileInputStream(sentenceFilename));
-				} catch (Exception e) {
-					e.printStackTrace();
-					System.exit(0);
-				}
-
-				// XXX
-				if (goldTree.getSentence().length < 1 ||
-						dummyTree.getSentence().length < 1)
-					continue;
-
-				goldCorpus.add(goldTree);
-				dummyCorpus.add(dummyTree);
-			}
-		}
-
-		System.out.println("Done!");
-		
 		System.out.print("Trimming... ");
 		Trimmer trimmer = new Trimmer(rules);
 		List<DependencyTree> trimmedCorpus =
