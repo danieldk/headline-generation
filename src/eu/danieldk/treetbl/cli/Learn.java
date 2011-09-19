@@ -28,10 +28,25 @@ import eu.danieldk.treetbl.learn.conditions.HasSiblingCondition;
 import eu.danieldk.treetbl.learn.conditions.RuleConditionGenerator;
 
 public class Learn {
-	static class SentenceFileFilter implements FilenameFilter {
+	static class HeadlineFileFilter implements FilenameFilter {
 		public boolean accept(File dir, String name) {
-			return name.endsWith("s.xml");
+			return name.endsWith("h.xml");
 		}	
+	}
+	
+	static class SentenceFileFilter implements FilenameFilter {
+		public SentenceFileFilter(String basename) {
+			d_basename = basename + "a";
+		}
+		
+		public boolean accept(File dir, String name) {
+			if (name.endsWith(".xml") && name.startsWith(d_basename))
+				return true;
+			else
+				return false;
+		}
+		
+		String d_basename;
 	}
 	
 	private static String[] toLower(String[] seq) {
@@ -63,38 +78,45 @@ public class Learn {
 		Vector<DependencyTree> goldCorpus = new Vector<DependencyTree>();
 		Vector<DependencyTree> dummyCorpus = new Vector<DependencyTree>();
 		
-		String sentenceFilenames[] = dir.list(new SentenceFileFilter());
-		for (String sentenceFilename: sentenceFilenames) {
-			sentenceFilename = args[0] + "/" + sentenceFilename;
-			String headlineFilename = sentenceFilename.replaceAll("s\\.xml$",
-					"h.xml");
+		String headlineFilenames[] = dir.list(new HeadlineFileFilter());
+		for (String headlineFilename: headlineFilenames) {
+			String basename = headlineFilename.replaceAll("h\\.xml$", "");
 			
-			DependencyTree goldTree = null;
-			DependencyTree dummyTree = null;
+			// Not deterministic, there can be more than one sentence per headline.
+			String[] sentenceFilenames = dir.list(new SentenceFileFilter(basename));
 
-			try {
-				goldTree = new AlpinoDSReader().readTree(
-						new FileInputStream(headlineFilename));
-				dummyTree = new AlpinoDSReader().readTree(
-						new FileInputStream(sentenceFilename));
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
+			headlineFilename = args[0] + "/" + headlineFilename;
+
+			for (String sentenceFilename: sentenceFilenames) {
+				sentenceFilename = args[0] + "/" + sentenceFilename;				
+				
+				DependencyTree goldTree = null;
+				DependencyTree dummyTree = null;
+
+				try {
+					goldTree = new AlpinoDSReader().readTree(
+							new FileInputStream(headlineFilename));
+					dummyTree = new AlpinoDSReader().readTree(
+							new FileInputStream(sentenceFilename));
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(0);
+				}
+				
+				// XXX
+				
+				/*if (goldTree.getSentence().length < 3 ||
+						dummyTree.getSentence().length < 3)
+					continue;*/
+				
+				
+				if (goldTree.getSentence().length == 0 ||
+						dummyTree.getSentence().length == 0)
+					continue;
+				
+				goldCorpus.add(goldTree);
+				dummyCorpus.add(dummyTree);
 			}
-
-			// XXX
-			
-			/*if (goldTree.getSentence().length < 3 ||
-					dummyTree.getSentence().length < 3)
-				continue;*/
-			
-			
-			if (goldTree.getSentence().length == 0 ||
-					dummyTree.getSentence().length == 0)
-				continue;
-			
-			goldCorpus.add(goldTree);
-			dummyCorpus.add(dummyTree);
 		}
 		
 		System.out.println("Done!");

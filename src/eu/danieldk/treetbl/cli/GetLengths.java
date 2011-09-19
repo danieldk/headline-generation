@@ -3,6 +3,7 @@ package eu.danieldk.treetbl.cli;
 import java.io.File;
 import java.io.FileInputStream;
 
+import eu.danieldk.treetbl.cli.Learn.HeadlineFileFilter;
 import eu.danieldk.treetbl.cli.Learn.SentenceFileFilter;
 import eu.danieldk.treetbl.dtree.DependencyTree;
 import eu.danieldk.treetbl.dtree.io.AlpinoDSReader;
@@ -24,24 +25,31 @@ public class GetLengths {
 			System.out.println(args[0] + " is not a directory!");
 			System.exit(1);
 		}
+		
+		String headlineFilenames[] = dir.list(new HeadlineFileFilter());
+		for (String headlineFilename: headlineFilenames) {
+			String basename = headlineFilename.replaceAll("h\\.xml$", "");
 
-		String sentenceFilenames[] = dir.list(new SentenceFileFilter());
-		for (String sentenceFilename: sentenceFilenames) {
-			sentenceFilename = args[0] + "/" + sentenceFilename;
-			String headlineFilename = sentenceFilename.replaceAll("s\\.xml$",
-				"h.xml");
+			// Not deterministic, there can be more than one sentence per headline.
+			String[] sentenceFilenames = dir.list(new SentenceFileFilter(basename));
 
-			DependencyTree tree = null;
+			headlineFilename = args[0] + "/" + headlineFilename;
 
-			try {
-				tree = new AlpinoDSReader().readTree(
-						new FileInputStream(headlineFilename));
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
+			for (String sentenceFilename: sentenceFilenames) {
+				sentenceFilename = args[0] + "/" + sentenceFilename;				
+
+				DependencyTree tree = null;
+
+				try {
+					tree = new AlpinoDSReader().readTree(
+							new FileInputStream(headlineFilename));
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(0);
+				}
+
+				System.out.println(tree.getSentence().length);
 			}
-			
-			System.out.println(tree.getSentence().length);
 		}
 	}
 }

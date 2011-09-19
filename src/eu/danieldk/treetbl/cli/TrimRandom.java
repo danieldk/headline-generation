@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import eu.danieldk.treetbl.cli.Learn.HeadlineFileFilter;
 import eu.danieldk.treetbl.cli.Learn.SentenceFileFilter;
 import eu.danieldk.treetbl.dtree.DependencyTree;
 import eu.danieldk.treetbl.dtree.io.AlpinoDSReader;
@@ -76,25 +77,32 @@ public class TrimRandom {
 //		List<DependencyTree> goldCorpus = new Vector<DependencyTree>();
 		List<DependencyTree> dummyCorpus = new Vector<DependencyTree>();
 		
-		String sentenceFilenames[] = dir.list(new SentenceFileFilter());
-		for (String sentenceFilename: sentenceFilenames) {
-			sentenceFilename = args[2] + "/" + sentenceFilename;
-			String headlineFilename = sentenceFilename.replaceAll("s\\.xml$",
-					"h.xml");
-			
-//			DependencyTree goldTree = null;
-			DependencyTree dummyTree = null;
+		String headlineFilenames[] = dir.list(new HeadlineFileFilter());
+		for (String headlineFilename: headlineFilenames) {
+			String basename = headlineFilename.replaceAll("h\\.xml$", "");
 
-			try {
-				dummyTree = new AlpinoDSReader().readTree(
-						new FileInputStream(sentenceFilename));
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
+			// Not deterministic, there can be more than one sentence per headline.
+			String[] sentenceFilenames = dir.list(new SentenceFileFilter(basename));
+
+			headlineFilename = args[2] + "/" + headlineFilename;
+
+			for (String sentenceFilename: sentenceFilenames) {
+				sentenceFilename = args[2] + "/" + sentenceFilename;				
+
+				//			DependencyTree goldTree = null;
+				DependencyTree dummyTree = null;
+
+				try {
+					dummyTree = new AlpinoDSReader().readTree(
+							new FileInputStream(sentenceFilename));
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(0);
+				}
+
+				//			goldCorpus.add(goldTree);
+				dummyCorpus.add(dummyTree);
 			}
-
-//			goldCorpus.add(goldTree);
-			dummyCorpus.add(dummyTree);
 		}
 		
 		TreeSet<Integer> randomIndices = new TreeSet<Integer>();
