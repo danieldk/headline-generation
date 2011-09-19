@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import eu.danieldk.sc.cli.Learn.SentenceFileFilter;
@@ -124,11 +122,6 @@ public class Evaluate {
 			}
 		};
 		
-		double dummySum = 0.0;
-		double trimmedSum = 0.0;
-		double dummyNGramPrecSum = 0.0;
-		double trimmedNGramPrecSum = 0.0;
-
 		List<Double> dummyScores = new Vector<Double>();
 		List<Double> trimmedScores = new Vector<Double>();
 		List<Double> dummyUnigramPrecs = new Vector<Double>();

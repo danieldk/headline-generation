@@ -3,7 +3,6 @@ package eu.danieldk.sc.cli;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;

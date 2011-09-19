@@ -2,9 +2,7 @@ package eu.danieldk.sc.eval;
 
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.management.RuntimeErrorException;

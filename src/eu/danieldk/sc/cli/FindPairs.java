@@ -16,12 +16,13 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+
 import eu.danieldk.sc.dtree.DependencyTree;
 import eu.danieldk.sc.dtree.Node;
 import eu.danieldk.sc.dtree.io.AlpinoDSReader;
 import eu.danieldk.sc.dtree.io.DependencyTreeReader;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 public class FindPairs {
 	static class SentenceFileFilter implements FilenameFilter {

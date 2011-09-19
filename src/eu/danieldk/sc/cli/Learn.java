@@ -10,13 +10,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.xml.ws.handler.MessageContext.Scope;
-
 import eu.danieldk.sc.dtree.DependencyTree;
 import eu.danieldk.sc.dtree.io.AlpinoDSReader;
 import eu.danieldk.sc.eval.Rouge;
 import eu.danieldk.sc.learn.DeleteRule;
-import eu.danieldk.sc.learn.DeleteSiblingsRule;
 import eu.danieldk.sc.learn.Learner;
 import eu.danieldk.sc.learn.MakeRootRule;
 import eu.danieldk.sc.learn.ReplaceParentRule;

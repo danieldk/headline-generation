@@ -2,8 +2,6 @@ package eu.danieldk.sc.cli;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.Vector;
 
 import eu.danieldk.sc.cli.Learn.SentenceFileFilter;
 import eu.danieldk.sc.dtree.DependencyTree;
