@@ -96,8 +96,8 @@ public class Evaluate {
 		
 		ScoreFun unigramPrecScore = new ScoreFun() {
 			public Double call(DependencyTree arg1, DependencyTree arg2) {
-				String[] arg1Words = arg1.getRoots();
-				String[] arg2Words = arg2.getRoots();
+				List<String> arg1Words = arg1.getRoots();
+				List<String> arg2Words = arg2.getRoots();
 				return NgramEval.nGramPrecision(arg1Words, arg2Words, 1);
 			}
 		};

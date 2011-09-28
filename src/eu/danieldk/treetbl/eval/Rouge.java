@@ -1,7 +1,10 @@
 package eu.danieldk.treetbl.eval;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -91,13 +94,13 @@ public class Rouge {
 		return intersect;
 	}
 
-	private static Map<Ngram, Integer> ngrams(String[] sentence, int n) {
+	private static Map<Ngram, Integer> ngrams(List<String> sentence, int n) {
 		Map<Ngram, Integer> results = new HashMap<Ngram, Integer>();
 		
-		for (int i = 0; i < sentence.length - (n - 1); ++i) {
+		for (int i = 0; i < sentence.size() - (n - 1); ++i) {
 			String[] ngram = new String[n];
 			for (int j = 0; j < n; ++j)
-				ngram[j] = sentence[i + j];
+				ngram[j] = sentence.get(i + j);
 
 			Ngram ngramObj = new Ngram(ngram);
 			if (!results.containsKey(ngramObj))
@@ -108,13 +111,13 @@ public class Rouge {
 		return results;
 	}
 	
-	private static Map<Ngram, Integer> skipBigrams(String[] sentence,
+	private static Map<Ngram, Integer> skipBigrams(List<String> sentence,
 			int maxSkipDistance) {
 		Map<Ngram, Integer> results = new HashMap<Ngram, Integer>();
 		
-		for (int i = 0; i < sentence.length - 1; ++i)
-			for (int j = 0; j <= maxSkipDistance && i + j + 1 < sentence.length; ++j) {
-				String[] ngramStr = {sentence[i], sentence[i + j + 1]};
+		for (int i = 0; i < sentence.size() - 1; ++i)
+			for (int j = 0; j <= maxSkipDistance && i + j + 1 < sentence.size(); ++j) {
+				String[] ngramStr = {sentence.get(i), sentence.get(i + j + 1)};
 				Ngram ngram = new Ngram(ngramStr);
 				if (!results.containsKey(ngram))
 					results.put(ngram, 0);
@@ -150,8 +153,8 @@ public class Rouge {
 		return fMeasure(precision, recall, beta);
 	}
 	
-	public static double rougeN(String[] refSentence, 
-			String[] candidateSentence, int n) {
+	public static double rougeN(List<String> refSentence, 
+			List<String> candidateSentence, int n) {
 		Map<Ngram, Integer> refNgrams = ngrams(refSentence, n);
 		Map<Ngram, Integer> candidateNgrams = ngrams(candidateSentence, n);
 		
@@ -172,10 +175,10 @@ public class Rouge {
 		return ((double) intersectSize) / nRefNgrams;
 	}
 	
-	public static double rougeS(String[] refSentence,
-			String[] candidateSentence, int maxSkipDistance,
+	public static double rougeS(List<String> refSentence,
+			List<String> candidateSentence, int maxSkipDistance,
 			double beta) {
-		if (refSentence.length < 2 || candidateSentence.length < 2)
+		if (refSentence.size() < 2 || candidateSentence.size() < 2)
 			return 0.0;
 		
 		Map<Ngram, Integer> refNgrams = skipBigrams(refSentence, maxSkipDistance);
@@ -189,26 +192,21 @@ public class Rouge {
 			intersectSize += entry.getValue();
 
 		double precision = (double) intersectSize /
-			combination(refSentence.length, 2);
+			combination(refSentence.size(), 2);
 		double recall = (double) intersectSize /
-		combination(candidateSentence.length, 2);
+		combination(candidateSentence.size(), 2);
 		
 		return fMeasure(precision, recall, beta);
 	}
 	
-	public static double rougeSU(String[] refSentence,
-			String[] candidateSentence, int maxSkipDistance,
+	public static double rougeSU(List<String> refSentence,
+			List<String> candidateSentence, int maxSkipDistance,
 			double beta) {
-		String[] newRef = new String[refSentence.length + 1];
-		String[] newCan = new String[candidateSentence.length + 1];
-		newRef[0] = "@";
-		newCan[0] = "@";
+		List<String> newRef = new ArrayList<String>(refSentence);
+		List<String> newCan = new ArrayList<String>(candidateSentence);
 		
-		for (int i = 0; i < refSentence.length; ++i)
-			newRef[i + 1] = refSentence[i];
-		
-		for (int i = 0; i < candidateSentence.length; ++i)
-			newCan[i + 1] = candidateSentence[i];
+		newRef.add(0, "@");
+		newCan.add(0, "@");
 
 		return rougeS(newRef, newCan, maxSkipDistance, beta);
 	}
@@ -233,23 +231,33 @@ public class Rouge {
 	}
 	
 	public static void main(String[] args) {
-		String[] orig = {"police", "killed", "the", "gunman"};
-		String[] test1 = {"police", "kill", "the", "gunman"};
-		String[] test2 = {"the", "gunman", "kill", "police"};
-		String[] test3 = {"the", "gunman", "police", "killed"};
+		String[] origA = {"police", "killed", "the", "gunman"};
+		List<String> orig = Arrays.asList(origA);
+		String[] test1A = {"police", "kill", "the", "gunman"};
+		List<String> test1 = Arrays.asList(test1A);
+		String[] test2A = {"the", "gunman", "kill", "police"};
+		List<String> test2 = Arrays.asList(test2A);
 
-		String[] x = {"A", "B", "C", "D", "E", "F", "G"};
-		String[] y = {"A", "B", "C", "D", "H", "I", "K"};
-		String[] z = {"A", "H", "B", "K", "C", "I", "D"};
+		/*
+		String[] test3A = {"the", "gunman", "police", "killed"};
+
+		String[] xA = {"A", "B", "C", "D", "E", "F", "G"};
+		String[] yA = {"A", "B", "C", "D", "H", "I", "K"};
+		String[] zA = {"A", "H", "B", "K", "C", "I", "D"};
 		
-		String[] a = {"A", "B", "A", "A"};
-		String[] b = {"A", "C", "A", "A"};
+		String[] aA = {"A", "B", "A", "A"};
+		String[] bA = {"A", "C", "A", "A"};
+		*/
 		
-		String[] r = {"Spain", "wins", "the", "European", "soccer", "championship"};
-		String[] d = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "championship", "."};
-		String[] c1 = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "championship"};
-		String[] c2 = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "."};
-		
+		String[] rA = {"Spain", "wins", "the", "European", "soccer", "championship"};
+		List<String> r = Arrays.asList(rA);
+		String[] dA = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "championship", "."};
+		List<String> d = Arrays.asList(dA);
+		String[] c1A = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "championship"};
+		List<String> c1 = Arrays.asList(c1A);
+		String[] c2A = {"Yesterday", ",", "Spain", "won", "the", "European", "soccer", "."};
+		List<String> c2 = Arrays.asList(c2A);
+
 		System.out.println(rougeN(orig, test1, 1));
 		System.out.println(rougeN(orig, test2, 1));
 		System.out.println(rougeN(test1, orig, 1));

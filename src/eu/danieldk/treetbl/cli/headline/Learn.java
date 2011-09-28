@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,11 +50,11 @@ public class Learn {
 		String d_basename;
 	}
 	
-	private static String[] toLower(String[] seq) {
-		String[] lower = new String[seq.length];
-		
-		for (int i = 0; i < seq.length; ++i)
-			lower[i] = seq[i].toLowerCase();
+	private static List<String> toLower(List<String> seq) {
+		List<String> lower = new ArrayList<String>();
+
+		for (String str: seq)
+			lower.add(str.toLowerCase());
 		
 		return lower;
 	}
@@ -205,8 +206,8 @@ public class Learn {
 
 		Learner learner = new Learner(ruleGens, new ScoreFun() {
 			public Double call(DependencyTree arg1, DependencyTree arg2) {
-				String[] arg1Seq = toLower(arg1.getRoots());
-				String[] arg2Seq = toLower(arg2.getRoots());
+				List<String> arg1Seq = toLower(arg1.getRoots());
+				List<String> arg2Seq = toLower(arg2.getRoots());
 				return Rouge.rougeSU(arg1Seq, arg2Seq, Integer.MAX_VALUE,
 						1.0);
 			}

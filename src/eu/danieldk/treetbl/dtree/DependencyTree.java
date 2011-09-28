@@ -52,7 +52,7 @@ public class DependencyTree implements Serializable {
 		return results;
 	}
 	
-	public String[] getRoots() {
+	public List<String> getRoots() {
 		DependencyTreeNodeIterator iter = new DependencyTreeNodeIterator(getRootNode());
 		List<Node> words = new ArrayList<Node>();
 		while(iter.hasNext()) {
@@ -70,9 +70,9 @@ public class DependencyTree implements Serializable {
 			}
 		});
 		
-		String results[] = new String[words.size()];
-		for (int i = 0; i < words.size(); ++i)
-			results[i] = words.get(i).getAttrValue("root");
+		List<String> results = new ArrayList<String>();
+		for (Node node: words)
+			results.add(node.getAttrValue("root"));
 		
 		return results;
 	}
