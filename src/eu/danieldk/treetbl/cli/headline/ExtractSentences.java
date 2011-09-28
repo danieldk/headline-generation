@@ -1,4 +1,4 @@
-package eu.danieldk.treetbl.cli;
+package eu.danieldk.treetbl.cli.headline;
 
 import java.util.List;
 import java.util.Vector;

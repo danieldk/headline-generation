@@ -1,10 +1,10 @@
-package eu.danieldk.treetbl.cli;
+package eu.danieldk.treetbl.cli.headline;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-import eu.danieldk.treetbl.cli.Learn.HeadlineFileFilter;
-import eu.danieldk.treetbl.cli.Learn.SentenceFileFilter;
+import eu.danieldk.treetbl.cli.headline.Learn.HeadlineFileFilter;
+import eu.danieldk.treetbl.cli.headline.Learn.SentenceFileFilter;
 import eu.danieldk.treetbl.dtree.DependencyTree;
 import eu.danieldk.treetbl.dtree.io.AlpinoDSReader;
 
